@@ -10,7 +10,7 @@ require_once 'Response.php';
 
 class Router
 {
-
+	const router_root_dir = '/router/v4/php-router/';
 	public $routes = array();
 
 	public function get($regex, $action)
@@ -28,13 +28,15 @@ class Router
 		return $_SERVER['REQUEST_METHOD'];
 	}
 
-	public function parse_path_url()
+	public function parse_path_url($router_root_dir = false)
 	{
 		//path to be ex : admin/login
 		if ($_SERVER['REQUEST_URI']) {
 			$uri = $_SERVER['REQUEST_URI'];
+			if($router_root_dir){
+				$uri = str_replace(self::router_root_dir, '', $uri);
+			}
 			$uri = trim($uri, '/');
-			//$uri = str_replace('/router/v3/', '', $uri);
 			return $uri;
 		}
 	}
@@ -79,19 +81,10 @@ class Router
 
 		foreach ($this->routes as $route) {
 			$route_regex = $route['regex'];
-			//var_dump($route_regex);
-			//var_dump($this->parse_path_url());
-			//route : $router->get('/contact/?id=:id&name=:str', 'Controller@name');
-			//base :
+
 			$beautiful_route_regex = preg_replace('/{.*?}/', ':str', $route['regex']);
 			$pattern = "@^" . preg_replace('/\\\:[a-zA-Z0-9\_\-]+/', '([a-zA-Z0-9\-\_]+)', preg_quote($beautiful_route_regex)) . "$@D";
-			// ? = $_GET pattern
-			//$pattern = "@^" . preg_replace('/\\\:[a-zA-Z0-9\_\-]+/', '([a-zA-Z0-9\-\_\&\=]+)', preg_quote($route_regex)) . "$@D";
-			//$url_pattern =
-			//$url_route_regex = preg_replace('/{.*?}/', ':str', $route['regex']);
-			// if(preg_match($url_pattern, $url_route_regex)){
 
-			// }
 			if (preg_match($pattern, $this->parse_path_url(), $matches) &&  $this->request_method() == $route['method']) {
 				$action = explode('@', $route['action']);
 				$controller = ucfirst($action[0]);
@@ -118,17 +111,3 @@ class Router
 
 	}
 }
-
-
-//$router = new Router();
-//$router->get('/users/:id/:uid/:guid', "Controller@test");
-//$router->get('/', "Controller@demo");
-//$router->run();
-///user/:id/delete
-// $demo = new Demo;
-// $demo->test
-//$router->request->get('/home/contactus:slug', "Demo@test");
-//$router->get('/admin/login'); //127.0.0.1/product/cafee/1/2
-
-
-//$router->response->getBody();
