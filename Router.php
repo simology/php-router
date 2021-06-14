@@ -12,6 +12,7 @@ class Router
 {
 
 	public $routes = array();
+
 	public function get($regex, $action)
 	{
 		$this->addRoute('GET', $regex, $action);
@@ -29,9 +30,11 @@ class Router
 
 	public function parse_path_url()
 	{
+		//path to be ex : admin/login
 		if ($_SERVER['REQUEST_URI']) {
 			$uri = $_SERVER['REQUEST_URI'];
-			$uri = str_replace('/router/v3/', '', $uri);
+			$uri = trim($uri, '/');
+			//$uri = str_replace('/router/v3/', '', $uri);
 			return $uri;
 		}
 	}
@@ -46,16 +49,12 @@ class Router
 		];
 	}
 
-
 	//    export all routes
 	public function getRoutes()
 	{
 		return $this->routes;
 	}
-	public function beautifulRoute($regex_route){
-		$str = preg_match_all('/{.*?}/', $regex_route, $match);
 
-	}
 	public function get_request_data($http_method, $request)
 	{
 		if ($http_method == 'GET') {
@@ -80,6 +79,8 @@ class Router
 
 		foreach ($this->routes as $route) {
 			$route_regex = $route['regex'];
+			//var_dump($route_regex);
+			//var_dump($this->parse_path_url());
 			//route : $router->get('/contact/?id=:id&name=:str', 'Controller@name');
 			//base :
 			$beautiful_route_regex = preg_replace('/{.*?}/', ':str', $route['regex']);
